@@ -4,27 +4,18 @@ using System.ComponentModel.DataAnnotations;
 namespace Books.API.Entities;
 
 [Table("Books")]
-public class Book
+public class Book(Guid id, Guid authorId, string title, string? description)
 {
     [Key]
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = id;
 
     [Required]
     [MaxLength(150)]
-    public string Title { get; set; }
+    public string Title { get; set; } = title;
 
     [MaxLength(2500)]
-    public string? Description { get; set; }
+    public string? Description { get; set; } = description;
 
-    public Guid AuthorId { get; set; }
+    public Guid AuthorId { get; set; } = authorId;
     public Author Author { get; set; } = null!;
-
-    public Book(Guid id, Guid authorId, string title, string? description)
-    {
-        Id = id;
-        AuthorId = authorId;
-        Title = title;
-        Description = description;
-    }
-    
 }

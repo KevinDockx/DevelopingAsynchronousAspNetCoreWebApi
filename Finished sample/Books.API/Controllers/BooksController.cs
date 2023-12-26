@@ -8,29 +8,21 @@ namespace Books.API.Controllers;
 
 [Route("api")]
 [ApiController]
-public class BooksController : ControllerBase
+public class BooksController(IBooksRepository booksRepository,
+    IMapper mapper,
+    ILogger<BooksController> logger) : ControllerBase
 {
-    private readonly IBooksRepository _booksRepository;
-    private readonly IMapper _mapper;
-    private readonly ILogger<BooksController> _logger;
-
-    public BooksController(IBooksRepository booksRepository, 
-        IMapper mapper,
-        ILogger<BooksController> logger)
-    { 
-        _booksRepository = booksRepository ??
+    private readonly IBooksRepository _booksRepository = booksRepository ??
             throw new ArgumentNullException(nameof(booksRepository));
-        _mapper = mapper ??
+    private readonly IMapper _mapper = mapper ??
             throw new ArgumentNullException(nameof(mapper));
-        _logger = logger ?? 
+    private readonly ILogger<BooksController> _logger = logger ??
             throw new ArgumentNullException(nameof(logger));
-    }
-
 
     [HttpGet("books")]
     [TypeFilter(typeof(BooksResultFilter))]
     public IActionResult GetBooks_BadCode()
-    { 
+    {
         var bookEntities = _booksRepository.GetBooksAsync().Result;
         return Ok(bookEntities);
     }
@@ -40,26 +32,26 @@ public class BooksController : ControllerBase
     {
         await foreach (var bookFromRepository in
             _booksRepository.GetBooksAsAsyncEnumerable())
-        {      
+        {
             // add a delay to visually see the effect
             await Task.Delay(500);
             yield return _mapper.Map<BookDto>(bookFromRepository); ;
         }
     }
-    
+
     [HttpGet("books/{id}", Name = "GetBook")]
     [TypeFilter(typeof(BookWithCoversResultFilter))]
     public async Task<IActionResult> GetBook(Guid id,
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation($"ThreadId when entering GetBook: " +
-            $"{System.Threading.Thread.CurrentThread.ManagedThreadId}");
+        _logger.LogInformation("ThreadId when entering GetBook: {threadId}",
+            Environment.CurrentManagedThreadId);
 
         var bookEntity = await _booksRepository.GetBookAsync(id);
         if (bookEntity == null)
         {
             return NotFound();
-        } 
+        }
 
         var amountOfPages = await GetBookPages_BadCode(id);
 
@@ -81,8 +73,8 @@ public class BooksController : ControllerBase
         {
             var pageCalculator = new Books.Legacy.ComplicatedPageCalculator();
 
-            _logger.LogInformation($"ThreadId when calculating the amount of pages: " +
-                $"{System.Threading.Thread.CurrentThread.ManagedThreadId}");
+            _logger.LogInformation("ThreadId when calculating the amount of pages: {threadId}",
+                Environment.CurrentManagedThreadId);
 
             return pageCalculator.CalculateBookPages(id);
         });

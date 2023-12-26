@@ -1,19 +1,12 @@
 ﻿namespace Books.API.Models;
 
-public class BookForCreationDto
+public class BookForCreationDto(Guid authorId,
+    string title,
+    string? description)
 {
-    public Guid AuthorId { get; set; }
+    public Guid AuthorId { get; set; } = authorId;
 
-    public string Title { get; set; }
+    public string Title { get; set; } = title;
 
-    public string? Description { get; set; }
-
-    public BookForCreationDto(Guid authorId,
-        string title,
-        string? description)
-    {
-        AuthorId = authorId;
-        Title = title;
-        Description = description;
-    }
+    public string? Description { get; set; } = description;
 }

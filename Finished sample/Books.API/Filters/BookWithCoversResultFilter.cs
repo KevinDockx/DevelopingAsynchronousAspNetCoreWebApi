@@ -5,14 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Books.API.Filters;
 
-public class BookWithCoversResultFilter : IAsyncResultFilter
+public class BookWithCoversResultFilter(IMapper mapper) : IAsyncResultFilter
 {
-    private readonly IMapper _mapper;
-
-    public BookWithCoversResultFilter(IMapper mapper)
-    {
-        _mapper = mapper;
-    }
+    private readonly IMapper _mapper = mapper;
 
     public async Task OnResultExecutionAsync(
         ResultExecutingContext context, ResultExecutionDelegate next)

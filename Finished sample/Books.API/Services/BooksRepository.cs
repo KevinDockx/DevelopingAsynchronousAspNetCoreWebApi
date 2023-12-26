@@ -6,28 +6,17 @@ using System.Text.Json;
 
 namespace Books.API.Services;
 
-public class BooksRepository : IBooksRepository
+public class BooksRepository(BooksContext context,
+    IHttpClientFactory httpClientFactory) : IBooksRepository
 {
-    private readonly BooksContext _context;
-    private readonly IHttpClientFactory _httpClientFactory;
-
-    public BooksRepository(BooksContext context,
-        IHttpClientFactory httpClientFactory)
-    {
-        _context = context ??
+    private readonly BooksContext _context = context ??
             throw new ArgumentNullException(nameof(context));
-        _httpClientFactory = httpClientFactory ??
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ??
             throw new ArgumentNullException(nameof(httpClientFactory));
-    }
-
 
     public void AddBook(Book bookToAdd)
     {
-        if (bookToAdd == null)
-        {
-            throw new ArgumentNullException(nameof(bookToAdd));
-        }
-
+        ArgumentNullException.ThrowIfNull(bookToAdd);
         _context.Add(bookToAdd);
     }
 
@@ -115,9 +104,7 @@ public class BooksRepository : IBooksRepository
 
     public async Task<IEnumerable<Models.External.BookCoverDto>> DownloadBookCoverAsync_BadCode(
         Guid bookId)
-    {
-        var httpClient = _httpClientFactory.CreateClient();
-
+    { 
         var bookCoverUrls = new[]
         {
          $"http://localhost:52644/api/bookcovers/{bookId}-dummycover1",
